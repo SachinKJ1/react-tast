@@ -1,0 +1,71 @@
+.signUp-container {
+    height: 90vh;
+    position: relative;
+    background-color: azure;
+  }
+  .signUp-form-container {
+    width: 350px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(184, 200, 154);
+    background-image: linear-gradient(
+      to bottom right,
+      rgb(217, 224, 204),
+      rgb(184, 200, 154)
+    );
+    padding: 55px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 4px rgb(67, 67, 67);
+  }
+  .signup-heading {
+    text-align: center;
+    margin-bottom: 30px;
+    color: black;
+  }
+  .input-container {
+    height: 80px;
+  }
+  .signup-error-msg {
+    padding: 5px;
+    color: red;
+  }
+  .input-container:last-child {
+    height: 30px;
+  }
+  .input-container {
+    text-align: center;
+  }
+  
+  input {
+    border-radius: 10px;
+    height: 25px;
+    padding: 5px;
+    width: 100%;
+    padding-top: 10px;
+  }
+  
+  input::placeholder {
+    font-size: large;
+  }
+  
+  .input-container button {
+    background-color: rgb(84, 146, 33);
+    margin-bottom: 10px;
+    color: white;
+    padding: 10px;
+    font-size: large;
+    border-radius: 5px;
+    border: none !important;
+    /* box-shadow: 2px 2px rgb(167, 167, 167); */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
+  }
+  .input-container button:active {
+    box-shadow: none  ;
+  }
+  
+ 
+  .signup-btn-active{
+    background-color: rgba(53, 53, 53, 0.5) !important;
+  }
