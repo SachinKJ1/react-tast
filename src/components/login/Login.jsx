@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { useFormik } from "formik";
-import axios from "axios";
+
 import { useUiContext } from "../../contexts/UiContext";
+import axiosInstance from "../../utils/axiosInstance";
 
 const validate = (values) => {
   const errors = {};
@@ -25,7 +26,13 @@ const validate = (values) => {
 
 function Login() {
   const navigate = useNavigate();
-  const { toNotify, toSpin, toStopSpin } = useUiContext();
+  const {
+    toNotify,
+    toSpin,
+    toStopSpin,
+    updateLoginStatus, 
+    
+  } = useUiContext();
 
   const formik = useFormik({
     initialValues: {
@@ -34,20 +41,21 @@ function Login() {
     },
     validate,
     onSubmit: async (values) => {
-      console.log(values);
+      // console.log(values);
       toSpin();
       try {
-        await axios.post("http://localhost:4000/authenticate/login", values);
+        const res = await axiosInstance().post("/login", values);
         toNotify("green", "Successfully Logged in");
+
+        localStorage.setItem("token", res.data.token);
+        updateLoginStatus(true); 
         navigate("/home");
       } catch (error) {
-         
-        
-        if (error.response.data.error == "Invalid Email or password")
+        if (error.response.data.error === "Invalid Email or password")
           return toNotify("red", "Invalid email or password");
 
         if (
-          error.response.data.error ==
+          error.response.data.error ===
           "You are not authorized to access this page"
         )
           return toNotify("red", "You are not authorized to access this page");
@@ -103,7 +111,7 @@ function Login() {
             </button>
 
             <div>
-              Don't have an account <Link to="/sign-up">Login</Link> here
+              Don't have an account <Link to="/sign-up">Sign Up</Link> here
             </div>
           </div>
         </form>

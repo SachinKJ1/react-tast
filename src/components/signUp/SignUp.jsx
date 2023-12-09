@@ -3,9 +3,9 @@ import "./SignUp.css";
 import { useFormik } from "formik";
 
 import { Link } from "react-router-dom";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useUiContext } from "../../contexts/UiContext";
+import axiosInstance from "../../utils/axiosInstance";
 
 const validate = (values) => {
   const errors = {};
@@ -56,16 +56,21 @@ const validate = (values) => {
   }
 }; */
 
-const signUpUser = async (formData) => {
+/* const signUpUser = async (formData) => {
   return async function () {
     await axios.post("http://localhost:4000/authenticate/signUp", formData);
   };
-};
+}; */
 
 function SignUp() {
   const navigate = useNavigate();
 
-  const { toNotify, toSpin, toStopSpin } = useUiContext();
+  const {
+    toNotify,
+    toSpin,
+    toStopSpin,
+    updateLoginStatus, 
+  } = useUiContext();
 
   const formik = useFormik({
     initialValues: {
@@ -78,8 +83,10 @@ function SignUp() {
     onSubmit: async (values) => {
       toSpin();
       try {
-        await axios.post("http://localhost:4000/authenticate/signUp", values);
+        const res = await axiosInstance().post("/signUp", values);
         toNotify("green", "Successfully signed up");
+        localStorage.setItem("token", res.data.token); 
+        updateLoginStatus(true);
         navigate("/home");
       } catch (error) {
         // console.log(error);

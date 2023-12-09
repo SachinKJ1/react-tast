@@ -1,10 +1,12 @@
-import { createContext, useContext, useReducer } from "react";
+import axios from "axios";
+import { createContext, useContext, useEffect, useReducer } from "react";
 
 const initialState = {
   notify: false,
   notifyMsg: "",
   notifyColor: "",
   spinning: false,
+  loginStatus: false, 
 };
 
 const actionTypes = {
@@ -13,6 +15,7 @@ const actionTypes = {
   newNotifications: "newNotifications",
   showSpinner: "showSpinner",
   hideSpinner: "hideSpinner",
+  loginStatus: "loginStatus", 
 };
 
 function uiReducer(state, action) {
@@ -34,6 +37,9 @@ function uiReducer(state, action) {
     case actionTypes.hideSpinner:
       return { ...state, spinning: false };
 
+    case actionTypes.loginStatus:
+      return { ...state, loginStatus: payload }; 
+
     default:
       throw new Error(`${action.type} is not defined`);
   }
@@ -42,10 +48,10 @@ function uiReducer(state, action) {
 const uiContext = createContext();
 
 function UiContext({ children }) {
-  const [{ notify, notifyMsg, notifyColor, spinning }, dispatch] = useReducer(
-    uiReducer,
-    initialState
-  );
+  const [
+    { notify, notifyMsg, notifyColor, spinning, loginStatus },
+    dispatch,
+  ] = useReducer(uiReducer, initialState);
 
   function toSpin() {
     dispatch({ type: actionTypes.showSpinner });
@@ -64,9 +70,15 @@ function UiContext({ children }) {
 
   function toNotify(color, msg) {
     dispatch({ type: actionTypes.newNotifications, payload: { color, msg } });
-
     timedNotification();
   }
+
+  function updateLoginStatus(status) {
+    dispatch({ type: actionTypes.loginStatus, payload: status });
+  }
+
+  
+ 
 
   return (
     <uiContext.Provider
@@ -80,6 +92,9 @@ function UiContext({ children }) {
         toNotify,
         toSpin,
         toStopSpin,
+        loginStatus,
+        updateLoginStatus,
+        
       }}
     >
       {children}

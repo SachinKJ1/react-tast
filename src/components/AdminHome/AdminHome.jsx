@@ -1,33 +1,48 @@
 import React, { useEffect, useState } from "react";
-import "./AdminHome.css";
-import axios from "axios";
+import "./AdminHome.css"; 
 import { Link } from "react-router-dom";
+import { useUiContext } from "../../contexts/UiContext";
+import axiosInstance from "../../utils/axiosInstance";
 
 function AdminHome() {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [pageArr, setPageArr] = useState([]);
   const [curPage, setCurPage] = useState(1);
+  const {
+    toNotify,
+    spinning,
+    toSpin,
+    toStopSpin,
+    
+  } = useUiContext();
+
 
   const getAllUsers = async (query = "", page = "") => {
-    const userData = await axios.get(
-      `http://localhost:4000/authenticate/getAllUser${query}${page}`
-    );
+    toSpin();
+    try {
+      const userData = await axiosInstance().get(`/getAllUser${query}${page}`);
 
-    setUsers(userData.data.users);
+      setUsers(userData.data.users);
 
-    const limitsPerPage = 10;
-    const countArr = Array.from({ length: userData.data.count }, (v, i) => i);
-    setPageArr((arr) => (arr = []));
+      const limitsPerPage = 10;
+      const countArr = Array.from({ length: userData.data.count }, (v, i) => i);
+      setPageArr((arr) => (arr = []));
 
-    countArr.forEach((val, index) => {
-      if (index === 0) setPageArr((arr) => [...arr, 0]);
-      if ((index + 1) % limitsPerPage === 0) {
-        setPageArr((arr) => [...arr, (index + 1) / limitsPerPage]);
-      }
-    });
-    if (userData.data.count % limitsPerPage === 0)
-      setPageArr((arr) => [...arr].pop());
+      countArr.forEach((val, index) => {
+        if (index === 0) setPageArr((arr) => [...arr, 0]);
+        if ((index + 1) % limitsPerPage === 0) {
+          setPageArr((arr) => [...arr, (index + 1) / limitsPerPage]);
+        }
+      });
+      if (userData.data.count % limitsPerPage === 0)
+        setPageArr((arr) => [...arr].pop());
+    } catch (error) {
+      console.log(error);
+      toNotify("red", "Something went wrong");
+    } finally {
+      toStopSpin();
+    }
   };
 
   async function onDeleteUser(id) {
@@ -35,12 +50,15 @@ function AdminHome() {
       "Are you sure you want to delete this user?"
     );
     if (!deleteUser) return;
-
+    toSpin();
     try {
-      await axios.delete(`http://localhost:4000/authenticate/deleteUser/${id}`);
+      await axiosInstance().delete(`/deleteUser/${id}`);
       getAllUsers();
     } catch (error) {
-      console.log(error);
+      toNotify("red", "Something went wrong");
+      // console.log(error);
+    } finally {
+      toStopSpin();
     }
   }
 
@@ -53,7 +71,7 @@ function AdminHome() {
 
   function paginate(e) {
     const { page } = e.target.dataset;
-    console.log(page);
+    // console.log(page);
     let query = `?username[$regex]=${searchQuery}&username[$options]=i`;
     getAllUsers(query, `&page=${page}`);
     setCurPage(() => Number(page));
@@ -124,10 +142,10 @@ function AdminHome() {
             ))}
           </tbody>
         </table>
-        {users.length === 0 && searchQuery && (
+        {users.length === 0 && searchQuery && !spinning && (
           <div className="users-error-msg">No Users found</div>
         )}
-        {users.length === 0 && !searchQuery && (
+        {users.length === 0 && !searchQuery && !spinning && (
           <div className="users-error-msg">Something Went Wrong</div>
         )}
       </div>

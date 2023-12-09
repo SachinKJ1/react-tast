@@ -3,9 +3,10 @@ import "./CreateUser.css";
 import { useFormik } from "formik";
 
 import { Link } from "react-router-dom";
-import axios from "axios";
+ 
 import { useNavigate } from "react-router-dom";
 import { useUiContext } from "../../contexts/UiContext";
+import axiosInstance from "../../utils/axiosInstance";
 
 const validate = (values) => {
   const errors = {};
@@ -38,6 +39,10 @@ const validate = (values) => {
     errors.passwordConfirm = "Password and Password Confirm should match";
   }
 
+  if (!values.role) {
+    errors.role = "Required";
+  }
+
   return errors;
 };
 
@@ -52,15 +57,15 @@ function CreateUser() {
       email: "",
       password: "",
       passwordConfirm: "",
+      role: "user",
     },
     validate,
     onSubmit: async (values) => {
+      console.log(values);
+
       toSpin();
       try {
-        await axios.post(
-          "http://localhost:4000/authenticate/createUser",
-          values
-        );
+        await axiosInstance().post("/createUser", values);
         toNotify("green", "Successfully created at");
         navigate("/home");
       } catch (error) {
@@ -137,6 +142,22 @@ function CreateUser() {
                 {formik.errors.passwordConfirm}
               </div>
             ) : null}
+          </div>
+
+          <div className="input-container">
+            <div className="select-container">
+              <label htmlFor="role">Role of new User</label>&nbsp;&nbsp;&nbsp;
+              <select
+                className="select-tag"
+                name="role"
+                id="role"
+                onChange={formik.handleChange}
+                value={formik.values.role}
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
 
           <div className="input-container">
